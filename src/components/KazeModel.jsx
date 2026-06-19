@@ -1,7 +1,157 @@
 import { Text, useGLTF } from "@react-three/drei";
-import { useControls } from "leva";
+import { button, useControls } from "leva";
+import layout from "../data/layout.json";
 
 useGLTF.preload("/kaze.glb");
+
+const RAIL_Y = 16;
+
+// String geometry's local bounding box along Y (Cylinder.005), measured from the
+// GLB: the pivot is NOT centered, it sits near the bottom of the mesh.
+const STRING_LOCAL_BOTTOM = -3.8091812133789062;
+const STRING_LOCAL_TOP = 26.142597198486328;
+const STRING_LOCAL_LENGTH = STRING_LOCAL_TOP - STRING_LOCAL_BOTTOM;
+
+const addVec3 = ([ax, ay, az], [bx, by, bz]) => [ax + bx, ay + by, az + bz];
+
+// Rotates an XZ offset around Y only - strings only need to track plate yaw.
+const rotateOffsetY = ([ox, oy, oz], rotationY) => {
+	const cos = Math.cos(rotationY);
+	const sin = Math.sin(rotationY);
+	return [ox * cos + oz * sin, oy, oz * cos - ox * sin];
+};
+
+const ControllableMesh = ({
+	label,
+	geometry,
+	scale,
+	defaultPosition,
+	defaultRotation = [0, 0, 0],
+	defaultColor,
+	roughness = 0.95,
+	metalness = 0,
+	castShadow = true,
+	receiveShadow = true,
+	children,
+}) => {
+	const [{ position, rotation, color }, set] = useControls(
+		label,
+		() => ({
+			position: { value: defaultPosition, step: 0.01 },
+			rotation: { value: defaultRotation, step: 0.01 },
+			color: defaultColor,
+			Reset: button(() =>
+				set({
+					position: defaultPosition,
+					rotation: defaultRotation,
+					color: defaultColor,
+				}),
+			),
+		}),
+		{ collapsed: true },
+	);
+
+	return (
+		<mesh
+			geometry={geometry}
+			position={position}
+			rotation={rotation}
+			scale={scale}
+			castShadow={castShadow}
+			receiveShadow={receiveShadow}
+		>
+			<meshStandardMaterial
+				color={color}
+				roughness={roughness}
+				metalness={metalness}
+			/>
+			{children}
+		</mesh>
+	);
+};
+
+const StringMesh = ({ geometry, attachPosition, color }) => {
+	const [x, attachY, z] = attachPosition;
+	const scaleY = (RAIL_Y - attachY) / STRING_LOCAL_LENGTH;
+	const centerY = attachY - STRING_LOCAL_BOTTOM * scaleY;
+
+	return (
+		<mesh geometry={geometry} position={[x, centerY, z]} scale={[1, scaleY, 1]}>
+			<meshStandardMaterial color={color} roughness={0.8} metalness={0.1} />
+		</mesh>
+	);
+};
+
+// A plate whose strings follow its own position (xyz) and rotation (y only)
+// when moved/rotated in Leva, instead of each string having an independent
+// position control.
+const PlateWithStrings = ({
+	label,
+	geometry,
+	scale,
+	defaultPosition,
+	defaultRotation = [0, 0, 0],
+	defaultColor,
+	stringGeometry,
+	stringColor,
+	stringOffsets = [[0, 0, 0]],
+	roughness = 0.95,
+	metalness = 0,
+	castShadow = true,
+	receiveShadow = true,
+	children,
+}) => {
+	const [{ position, rotation, color }, set] = useControls(
+		label,
+		() => ({
+			position: { value: defaultPosition, step: 0.01 },
+			rotation: { value: defaultRotation, step: 0.01 },
+			color: defaultColor,
+			Reset: button(() =>
+				set({
+					position: defaultPosition,
+					rotation: defaultRotation,
+					color: defaultColor,
+				}),
+			),
+		}),
+		{ collapsed: true },
+	);
+
+	return (
+		<>
+			{stringOffsets.map((offset) => (
+				<StringMesh
+					key={offset.join(",")}
+					geometry={stringGeometry}
+					attachPosition={addVec3(position, rotateOffsetY(offset, rotation[1]))}
+					color={stringColor}
+				/>
+			))}
+			<mesh
+				geometry={geometry}
+				position={position}
+				rotation={rotation}
+				scale={scale}
+				castShadow={castShadow}
+				receiveShadow={receiveShadow}
+			>
+				<meshStandardMaterial
+					color={color}
+					roughness={roughness}
+					metalness={metalness}
+				/>
+				{children}
+			</mesh>
+		</>
+	);
+};
+
+const MAIN_STRING_OFFSETS = [
+	[0, 0, -1.8],
+	[0, 0, 1.8],
+];
+const SINGLE_STRING_OFFSET = [[0, 0, 0]];
 
 export const KazeModel = () => {
 	const { nodes } = useGLTF("/kaze.glb");
@@ -11,9 +161,9 @@ export const KazeModel = () => {
 		rotation: nameRotation,
 		color: nameColor,
 	} = useControls("Name Text", {
-		position: { value: [-0.35, 5.35, -1.86], step: 0.01 },
-		rotation: { value: [0, -1.58, 0], step: 0.01 },
-		color: "#655f52",
+		position: { value: layout.nameText.position, step: 0.01 },
+		rotation: { value: layout.nameText.rotation, step: 0.01 },
+		color: layout.nameText.color,
 	});
 
 	const {
@@ -21,49 +171,111 @@ export const KazeModel = () => {
 		rotation: roleRotation,
 		color: roleColor,
 	} = useControls("Role Text", {
-		position: { value: [-0.35, 5.35, 0.83], step: 0.01 },
-		rotation: { value: [0, -1.58, 0], step: 0.01 },
-		color: "#655f52",
+		position: { value: layout.roleText.position, step: 0.01 },
+		rotation: { value: layout.roleText.rotation, step: 0.01 },
+		color: layout.roleText.color,
+	});
+
+	const { color: stringColor } = useControls(
+		"Strings",
+		{ color: layout.stringColor },
+		{ collapsed: true },
+	);
+
+	useControls("Export", {
+		"Copy All Positions": button((get) => {
+			const data = {
+				wall: {
+					position: get("Wall.position"),
+					rotation: get("Wall.rotation"),
+					color: get("Wall.color"),
+				},
+				floor: {
+					position: get("Floor.position"),
+					rotation: get("Floor.rotation"),
+					color: get("Floor.color"),
+				},
+				nameText: {
+					position: get("Name Text.position"),
+					rotation: get("Name Text.rotation"),
+					color: get("Name Text.color"),
+				},
+				roleText: {
+					position: get("Role Text.position"),
+					rotation: get("Role Text.rotation"),
+					color: get("Role Text.color"),
+				},
+				stringColor: get("Strings.color"),
+				plateMain: {
+					position: get("Plate Main.position"),
+					rotation: get("Plate Main.rotation"),
+					color: get("Plate Main.color"),
+				},
+				navPlates: layout.navPlates.map((plate) => ({
+					label: plate.label,
+					position: get(`Plate ${plate.label}.position`),
+					rotation: get(`Plate ${plate.label}.rotation`),
+					color: get(`Plate ${plate.label}.color`),
+				})),
+				decorativePlates: layout.decorativePlates.map((plate, index) => ({
+					id: plate.id,
+					position: get(`Decorative ${index + 1}.position`),
+					rotation: get(`Decorative ${index + 1}.rotation`),
+					color: get(`Decorative ${index + 1}.color`),
+				})),
+				plateRound: {
+					position: get("Plate Round.position"),
+					rotation: get("Plate Round.rotation"),
+					color: get("Plate Round.color"),
+				},
+			};
+			navigator.clipboard.writeText(JSON.stringify(data, null, "\t"));
+		}),
 	});
 
 	return (
 		<group rotation={[0, Math.PI / 2, 0]}>
-			<mesh
+			<ControllableMesh
+				label="Wall"
 				geometry={nodes.wall.geometry}
-				position={nodes.wall.position}
-				rotation={nodes.wall.rotation}
 				scale={nodes.wall.scale}
-				receiveShadow
-			>
-				<meshStandardMaterial color="#E8E2D5" roughness={1} metalness={0} />
-			</mesh>
-			<mesh
-				geometry={nodes.floor.geometry}
-				position={nodes.floor.position}
-				rotation={nodes.floor.rotation}
-				scale={nodes.floor.scale}
-				receiveShadow
-			>
-				<meshStandardMaterial color="#E8E2D5" roughness={1} metalness={0} />
-			</mesh>
-			<mesh
-				geometry={nodes.plate_main.geometry}
-				position={nodes.plate_main.position}
-				rotation={nodes.plate_main.rotation}
-				scale={nodes.plate_main.scale}
-				castShadow
-				receiveShadow
-			>
-				<meshStandardMaterial color="#F2EFE8" roughness={0.95} metalness={0} />
+				defaultPosition={layout.wall.position}
+				defaultRotation={layout.wall.rotation}
+				defaultColor={layout.wall.color}
+				roughness={1}
+				castShadow={false}
+			/>
 
+			<ControllableMesh
+				label="Floor"
+				geometry={nodes.floor.geometry}
+				scale={nodes.floor.scale}
+				defaultPosition={layout.floor.position}
+				defaultRotation={layout.floor.rotation}
+				defaultColor={layout.floor.color}
+				roughness={1}
+				castShadow={false}
+			/>
+
+			<PlateWithStrings
+				label="Plate Main"
+				geometry={nodes.plate_main.geometry}
+				scale={nodes.plate_main.scale}
+				defaultPosition={layout.plateMain.position}
+				defaultRotation={layout.plateMain.rotation}
+				defaultColor={layout.plateMain.color}
+				stringGeometry={nodes.string.geometry}
+				stringColor={stringColor}
+				stringOffsets={MAIN_STRING_OFFSETS}
+			>
 				<Text
 					position={namePosition}
 					rotation={nameRotation}
-					fontSize={0.3}
+					fontSize={0.2}
 					color={nameColor}
-					letterSpacing={0.35}
 					anchorX="left"
 					anchorY="middle"
+					fontWeight={250}
 				>
 					MOHSEN
 				</Text>
@@ -71,7 +283,7 @@ export const KazeModel = () => {
 				<Text
 					position={rolePosition}
 					rotation={roleRotation}
-					fontSize={0.15}
+					fontSize={0.1}
 					color={roleColor}
 					letterSpacing={0.23}
 					anchorX="left"
@@ -80,44 +292,49 @@ export const KazeModel = () => {
 				>
 					Web Designer & Developer
 				</Text>
-			</mesh>
-			<mesh
-				geometry={nodes.plate_contact.geometry}
-				position={nodes.plate_contact.position}
-				rotation={nodes.plate_contact.rotation}
-				scale={nodes.plate_contact.scale}
-				castShadow
-				receiveShadow
-			>
-				<meshStandardMaterial color="#F2EFE8" roughness={0.95} metalness={0} />
-			</mesh>
-			<mesh
-				geometry={nodes.contact_string.geometry}
-				position={nodes.contact_string.position}
-				rotation={nodes.contact_string.rotation}
-				scale={nodes.contact_string.scale}
-				castShadow
-			>
-				<meshStandardMaterial color="#C8C0B0" roughness={0.8} metalness={0.1} />
-			</mesh>
-			<mesh
-				geometry={nodes.main_string_left.geometry}
-				position={nodes.main_string_left.position}
-				rotation={nodes.main_string_left.rotation}
-				scale={nodes.main_string_left.scale}
-				castShadow
-			>
-				<meshStandardMaterial color="#C8C0B0" roughness={0.8} metalness={0.1} />
-			</mesh>
-			<mesh
-				geometry={nodes.main_string_right.geometry}
-				position={nodes.main_string_right.position}
-				rotation={nodes.main_string_right.rotation}
-				scale={nodes.main_string_right.scale}
-				castShadow
-			>
-				<meshStandardMaterial color="#C8C0B0" roughness={0.8} metalness={0.1} />
-			</mesh>
+			</PlateWithStrings>
+
+			{layout.navPlates.map((plate) => (
+				<PlateWithStrings
+					key={plate.label}
+					label={`Plate ${plate.label}`}
+					geometry={nodes.plate_small.geometry}
+					scale={nodes.plate_small.scale}
+					defaultPosition={plate.position}
+					defaultRotation={plate.rotation}
+					defaultColor={plate.color}
+					stringGeometry={nodes.string.geometry}
+					stringColor={stringColor}
+					stringOffsets={SINGLE_STRING_OFFSET}
+				/>
+			))}
+
+			{layout.decorativePlates.map((plate, index) => (
+				<PlateWithStrings
+					key={plate.id}
+					label={`Decorative ${index + 1}`}
+					geometry={nodes["plate-thin"].geometry}
+					scale={nodes["plate-thin"].scale}
+					defaultPosition={plate.position}
+					defaultRotation={plate.rotation}
+					defaultColor={plate.color}
+					stringGeometry={nodes.string.geometry}
+					stringColor={stringColor}
+					stringOffsets={SINGLE_STRING_OFFSET}
+				/>
+			))}
+
+			<PlateWithStrings
+				label="Plate Round"
+				geometry={nodes.plate_round.geometry}
+				scale={nodes.plate_round.scale}
+				defaultPosition={layout.plateRound.position}
+				defaultRotation={layout.plateRound.rotation}
+				defaultColor={layout.plateRound.color}
+				stringGeometry={nodes.string.geometry}
+				stringColor={stringColor}
+				stringOffsets={SINGLE_STRING_OFFSET}
+			/>
 		</group>
 	);
 };
