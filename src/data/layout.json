@@ -1,211 +1,165 @@
 {
 	"wall": {
-		"position": [
-			2.154026746749878,
-			38.87531280517578,
-			0
-		],
-		"rotation": [
-			0,
-			0,
-			-1.5707963267948966
-		],
+		"position": [2.154026746749878, 38.87531280517578, 0],
+		"rotation": [0, 0, -1.5707963267948966],
 		"color": "#e8e2d5"
 	},
 	"floor": {
-		"position": [
-			-36.549583435058594,
-			0,
-			0
-		],
-		"rotation": [
-			0,
-			0,
-			0
-		],
+		"position": [-36.549583435058594, 0, 0],
+		"rotation": [0, 0, 0],
 		"color": "#e8e2d5"
 	},
 	"nameText": {
-		"position": [
-			-1.03,
-			-0.7699999999999975,
-			-0.9299999999999986
-		],
-		"rotation": [
-			0,
-			-1.58,
-			0
-		],
+		"position": [-1.03, -0.7699999999999975, -0.9299999999999986],
+		"rotation": [0, -1.58, 0],
 		"color": "#655f52"
 	},
 	"roleText": {
-		"position": [
-			-1.03,
-			-0.690000000000002,
-			0.18999999999999992
-		],
-		"rotation": [
-			0,
-			-1.57,
-			0
-		],
+		"position": [-1.03, -0.690000000000002, 0.18999999999999992],
+		"rotation": [0, -1.57, 0],
 		"color": "#655f52"
 	},
 	"stringColor": "#c8c0b0",
 	"plateMain": {
-		"position": [
-			1.370048534358939,
-			4.508394718170166,
-			-0.13772599399089813
-		],
-		"rotation": [
-			0,
-			0,
-			0
-		],
-		"color": "#f2efe8"
+		"position": [1.370048534358939, 4.508394718170166, -0.13772599399089813],
+		"rotation": [0, 0, 0],
+		"color": "#f2efe8",
+		"swingSpeed": 0.1,
+		"swingAmplitude": 0.02
 	},
 	"navPlates": [
 		{
 			"label": "About",
-			"position": [
-				-3.849950999999999,
-				6,
-				-6.5
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [-3.849950999999999, 6, -6.5],
+			"rotation": [0, 0, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "About",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.15
+			}
 		},
 		{
 			"label": "Contact",
-			"position": [
-				-1.5299510000000012,
-				5.2,
-				-2.2
-			],
-			"rotation": [
-				0,
-				-0.7100000000000006,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [-1.5299510000000012, 5.2, -2.2],
+			"rotation": [0, -0.7100000000000006, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "Contact",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.15
+			}
 		},
 		{
 			"label": "Projects",
-			"position": [
-				-0.20995099999999978,
-				5.8,
-				2.2
-			],
-			"rotation": [
-				0,
-				0.5699999999999998,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [-0.20995099999999978, 5.8, 2.2],
+			"rotation": [0, 0.5699999999999998, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "Projects",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.15
+			}
 		},
 		{
 			"label": "Resume",
-			"position": [
-				-3.679950999999998,
-				5,
-				6.5
-			],
-			"rotation": [
-				0,
-				0.43000000000000005,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [-3.679950999999998, 5, 6.5],
+			"rotation": [0, 0.43000000000000005, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "Resume",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.15
+			}
 		}
 	],
 	"decorativePlates": [
 		{
 			"id": "deco-1",
-			"position": [
-				0.8700490000000006,
-				7.8,
-				-8.2
-			],
-			"rotation": [
-				0,
-				-0.18999999999999978,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [0.8700490000000006, 7.8, -8.2],
+			"rotation": [0, -0.18999999999999978, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "WIND",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.12
+			}
 		},
 		{
 			"id": "deco-2",
-			"position": [
-				-0.06995099999999552,
-				2.6,
-				-7.4
-			],
-			"rotation": [
-				0,
-				0.7500000000000001,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [-0.06995099999999552, 2.6, -7.4],
+			"rotation": [0, 0.7500000000000001, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "ECHO",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.12
+			}
 		},
 		{
 			"id": "deco-3",
-			"position": [
-				0.5200489999999994,
-				8.3,
-				0.8
-			],
-			"rotation": [
-				0,
-				-0.5900000000000001,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [0.5200489999999994, 8.3, 0.8],
+			"rotation": [0, -0.5900000000000001, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "DRIFT",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.12
+			}
 		},
 		{
 			"id": "deco-4",
-			"position": [
-				-0.09995099999999975,
-				2.2,
-				4.6
-			],
-			"rotation": [
-				0,
-				-0.4800000000000002,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [-0.09995099999999975, 2.2, 4.6],
+			"rotation": [0, -0.4800000000000002, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "CHIME",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.12
+			}
 		},
 		{
 			"id": "deco-5",
-			"position": [
-				0.7700489999999995,
-				7.4,
-				8.4
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"color": "#f2efe8"
+			"position": [0.7700489999999995, 7.4, 8.4],
+			"rotation": [0, 0, 0],
+			"color": "#f2efe8",
+			"text": {
+				"content": "BREEZE",
+				"offset": [-0.16, 0, 0],
+				"rotationOffset": [0, -1.5707963267948966, 0],
+				"color": "#655f52",
+				"fontSize": 0.12
+			}
 		}
 	],
 	"plateRound": {
-		"position": [
-			0.7900639305726511,
-			4.694854736328125,
-			-5.484350204467773
-		],
-		"rotation": [
-			0,
-			0.53,
-			-1.5707963267948966
-		],
-		"color": "#f2efe8"
+		"position": [0.7900639305726511, 4.694854736328125, -5.484350204467773],
+		"rotation": [0, 0.53, -1.5707963267948966],
+		"color": "#f2efe8",
+		"text": {
+			"content": "KAZE",
+			"offset": [0, 0, 0.3],
+			"rotationOffset": [0, -1.5707963267948966, 0],
+			"color": "#655f52",
+			"fontSize": 0.15
+		},
+		"swingSpeed": 0.1,
+		"swingAmplitude": 1.5
 	}
 }
