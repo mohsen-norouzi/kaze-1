@@ -1,23 +1,30 @@
-import { OrbitControls, PerspectiveCamera, useHelper } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useControls } from "leva";
+import { button, useControls } from "leva";
 import { Perf } from "r3f-perf";
 import { useEffect, useRef } from "react";
-import { SpotLightHelper } from "three";
 import { KazeModel } from "./components/KazeModel";
+
 
 export const Experience = () => {
 	const { camera } = useThree();
+	const controlsRef = useRef();
 
-	const { camX, camY, camZ, fov, near, far } = useControls(
+	const { fov, near, far } = useControls(
 		"Camera",
 		{
-			camX: { value: 0, min: -20, max: 20, step: 0.1 },
-			camY: { value: 2, min: -20, max: 20, step: 0.1 },
-			camZ: { value: 20, min: 0, max: 30, step: 0.1 },
 			fov: { value: 45, min: 10, max: 120, step: 1 },
 			near: { value: 0.1, min: 0.01, max: 10, step: 0.01 },
 			far: { value: 50, min: 1, max: 200, step: 1 },
+			"Log camera": button(() => {
+				if (!controlsRef.current) return;
+				const { x: px, y: py, z: pz } = camera.position;
+				const { x: tx, y: ty, z: tz } = controlsRef.current.target;
+				console.log(
+					`position={[${px.toFixed(2)}, ${py.toFixed(2)}, ${pz.toFixed(2)}]}\n` +
+						`target={[${tx.toFixed(2)}, ${ty.toFixed(2)}, ${tz.toFixed(2)}]}`,
+				);
+			}),
 		},
 		{ collapsed: true },
 	);
@@ -72,9 +79,9 @@ export const Experience = () => {
 		<>
 			<Perf position="top-left" />
 
-			<PerspectiveCamera makeDefault position={[camX, camY, camZ]} fov={fov} />
+			<PerspectiveCamera makeDefault position={[0, 2, 20]} fov={fov} />
 
-			<OrbitControls />
+			<OrbitControls ref={controlsRef} />
 
 			<ambientLight intensity={1.5} />
 

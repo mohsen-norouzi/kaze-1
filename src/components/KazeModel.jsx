@@ -1,9 +1,30 @@
-import { useGLTF } from "@react-three/drei";
+import { Text, useGLTF } from "@react-three/drei";
+import { useControls } from "leva";
 
 useGLTF.preload("/kaze.glb");
 
 export const KazeModel = () => {
 	const { nodes } = useGLTF("/kaze.glb");
+
+	const {
+		position: namePosition,
+		rotation: nameRotation,
+		color: nameColor,
+	} = useControls("Name Text", {
+		position: { value: [-0.35, 5.35, -1.86], step: 0.01 },
+		rotation: { value: [0, -1.58, 0], step: 0.01 },
+		color: "#655f52",
+	});
+
+	const {
+		position: rolePosition,
+		rotation: roleRotation,
+		color: roleColor,
+	} = useControls("Role Text", {
+		position: { value: [-0.35, 5.35, 0.83], step: 0.01 },
+		rotation: { value: [0, -1.58, 0], step: 0.01 },
+		color: "#655f52",
+	});
 
 	return (
 		<group rotation={[0, Math.PI / 2, 0]}>
@@ -34,6 +55,31 @@ export const KazeModel = () => {
 				receiveShadow
 			>
 				<meshStandardMaterial color="#F2EFE8" roughness={0.95} metalness={0} />
+
+				<Text
+					position={namePosition}
+					rotation={nameRotation}
+					fontSize={0.3}
+					color={nameColor}
+					letterSpacing={0.35}
+					anchorX="left"
+					anchorY="middle"
+				>
+					MOHSEN
+				</Text>
+
+				<Text
+					position={rolePosition}
+					rotation={roleRotation}
+					fontSize={0.15}
+					color={roleColor}
+					letterSpacing={0.23}
+					anchorX="left"
+					anchorY="middle"
+					maxWidth={0.8}
+				>
+					Web Designer & Developer
+				</Text>
 			</mesh>
 			<mesh
 				geometry={nodes.plate_contact.geometry}
